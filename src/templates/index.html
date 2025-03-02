@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Dự báo thời tiết</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #87CEEB, #E0F6FF);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            width: 80%;
+            max-width: 600px;
+            text-align: center;
+        }
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 2em;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+        button:hover {
+            background-color: #2980b9;
+            transform: scale(1.05);
+        }
+        button:active {
+            transform: scale(0.95);
+        }
+        #loading {
+            font-size: 1.2em;
+            color: #7f8c8d;
+            margin: 10px 0;
+            display: none;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            display: none;
+        }
+        th, td {
+            padding: 12px;
+            text-align: center;
+            border-bottom: 1px solid #eee;
+        }
+        th {
+            background-color: #3498db;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        .weather-icon {
+            font-size: 24px;
+            color: #f1c40f;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Dự báo nhiệt độ <span class="weather-icon">☀️</span></h1>
+        <button onclick="fetchForecast()">Xem dự báo</button>
+        <div id="loading">Đang tải...</div>
+        <table id="forecastTable">
+            <thead>
+                <tr>
+                    <th>Ngày</th>
+                    <th>Nhiệt độ dự đoán (°C)</th>
+                    <th>Nhiệt độ thực tế (°C)</th>
+                </tr>
+            </thead>
+            <tbody id="forecastBody"></tbody>
+        </table>
+    </div>
+
+    <!-- Debug và tải JavaScript -->
+    <script>
+        console.log("Đã tải trang HTML");
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log("DOM đã sẵn sàng");
+        });
+    </script>
+    <script> function fetchForecast() {
+    console.log("Gọi hàm fetchForecast"); // Debug
+    const table = document.getElementById('forecastTable');
+    const loading = document.getElementById('loading');
+    table.style.display = 'none';
+    loading.style.display = 'block';
+
+    fetch('/api/forecast')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Lỗi khi gọi API: ' + response.status);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Dữ liệu nhận được:', data); // Debug
+            const tableBody = document.getElementById('forecastBody');
+            tableBody.innerHTML = '';
+
+            if (data.length === 0 || data.error) {
+                alert('Không có dữ liệu dự báo hoặc có lỗi: ' + (data.error || ''));
+                return;
+            }
+
+            data.forEach(item => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${item.day}</td>
+                    <td>${item.predicted}</td>
+                    <td>${item.actual}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+            loading.style.display = 'none';
+            table.style.display = 'table';
+        })
+        .catch(error => {
+            console.error('Lỗi:', error);
+            alert('Có lỗi xảy ra khi lấy dự báo: ' + error.message);
+            loading.style.display = 'none';
+        });
+}
+
+// Debug: Xác nhận script.js được tải
+console.log("Đã tải script.js");</script>
+</body>
+</html>
